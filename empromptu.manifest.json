@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "processes": {
+    "web": {
+      "setup": "npm install",
+      "command": "npm run dev -- --port 2052 -H 0.0.0.0",
+      "port": 2052,
+      "build": "npm run build",
+      "output": ".next",
+      "type": "static"
+    }
+  }
+}
