@@ -6,14 +6,16 @@ import toast, { Toaster } from 'react-hot-toast';
 
 export default function Signup() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: '', phone: '', name: '', location: '' });
+  const [form, setForm] = useState({ email: '', name: '' });
   const [loading, setLoading] = useState(false);
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
   const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.name) return toast.error('Email and name are required.');
+    if (!disclaimerAccepted) return toast.error('You must accept the disclaimer to continue.');
     setLoading(true);
     try {
       const res = await fetch('/api/auth/signup', {
@@ -62,18 +64,23 @@ export default function Signup() {
                 <input id="email" name="email" type="email" required value={form.email} onChange={handleChange}
                   className="input-field" placeholder="amara@example.com" autoComplete="email" />
               </div>
-              <div>
-                <label className="label" htmlFor="phone">Phone Number</label>
-                <input id="phone" name="phone" type="tel" value={form.phone} onChange={handleChange}
-                  className="input-field" placeholder="+234 800 000 0000" autoComplete="tel" />
-              </div>
-              <div>
-                <label className="label" htmlFor="location">Geographic Location</label>
-                <input id="location" name="location" type="text" value={form.location} onChange={handleChange}
-                  className="input-field" placeholder="Lagos, Nigeria" />
+              <div className="border border-slate-700 bg-slate-900 rounded-xl p-4">
+                <p className="text-center text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Disclaimer</p>
+                <p className="text-slate-400 text-xs leading-relaxed text-center mb-3">
+                  By using this platform, you acknowledge that the risk scores and information provided are for informational purposes only and do not constitute financial, investment, or legal advice. You should conduct your own research and consult a qualified professional before making any investment decisions.
+                </p>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={disclaimerAccepted}
+                    onChange={e => setDisclaimerAccepted(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 accent-brand-500 cursor-pointer shrink-0"
+                  />
+                  <span className="text-slate-300 text-xs">I have read and agree to the disclaimer above *</span>
+                </label>
               </div>
 
-              <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
+              <button type="submit" disabled={loading || !disclaimerAccepted} className="btn-primary w-full mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
@@ -91,6 +98,8 @@ export default function Signup() {
             Already have an account?{' '}
             <Link href="/login" className="text-brand-400 hover:text-brand-300 font-medium">Sign In</Link>
           </p>
+
+
         </div>
       </div>
       <Toaster position="top-right" toastOptions={{ style: { background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' } }} />

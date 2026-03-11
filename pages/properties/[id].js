@@ -348,12 +348,12 @@ export default function PropertyDetail() {
                           </div>
                         )}
                       </div>
-                      <div className="w-full bg-slate-700 rounded-full h-2 mt-2">
+                      <div className="w-full bg-slate-700 rounded-full h-2 mt-2 overflow-hidden">
                         <div
-                          className={`h-2 rounded-full transition-all duration-700 ${
+                          className={`h-2 rounded-full ${
                             pct <= 30 ? 'bg-green-500' : pct <= 60 ? 'bg-amber-500' : pct <= 80 ? 'bg-orange-500' : 'bg-red-500'
                           }`}
-                          style={{ width: `${pct}%` }}
+                          style={{ width: `${Math.min(pct, 100)}%`, maxWidth: '100%' }}
                         />
                       </div>
                     </div>

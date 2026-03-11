@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [deleting, setDeleting] = useState(null);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -35,6 +36,16 @@ export default function Dashboard() {
       if (data.properties) setProperties(data.properties);
     } catch {}
     setLoading(false);
+  };
+
+  const handleDelete = async (id, address) => {
+    if (!confirm(`Delete "${address}"? This cannot be undone.`)) return;
+    setDeleting(id);
+    try {
+      const res = await fetch(`/api/properties/${id}`, { method: 'DELETE' });
+      if (res.ok) setProperties(prev => prev.filter(p => p.id !== id));
+    } catch {}
+    setDeleting(null);
   };
 
   const filtered = properties.filter(p =>
@@ -165,7 +176,11 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filtered.map(p => <PropertyCard key={p.id} property={p} />)}
+          {filtered.map(p => (
+            <div key={p.id} className={deleting === p.id ? 'opacity-50 pointer-events-none' : ''}>
+              <PropertyCard property={p} onDelete={handleDelete} />
+            </div>
+          ))}
         </div>
       )}
     </Layout>

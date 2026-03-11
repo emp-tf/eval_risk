@@ -2,12 +2,12 @@ import Link from 'next/link';
 import RiskBadge from './RiskBadge';
 import { formatCurrency } from '../lib/risk';
 
-export default function PropertyCard({ property }) {
+export default function PropertyCard({ property, onDelete }) {
   const { id, address, property_type, use_type, purchase_price, image_url, overall_score, risk_level, status } = property;
 
   return (
     <Link href={`/properties/${id}`}>
-      <div className="card hover:border-brand-500/40 transition-all duration-200 cursor-pointer group flex flex-col sm:flex-row gap-4">
+      <div className="card hover:border-brand-500/40 transition-all duration-200 cursor-pointer group flex flex-col sm:flex-row gap-4 items-start">
         {/* Image */}
         <div className="w-full sm:w-32 h-40 sm:h-28 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0">
           {image_url ? (
@@ -45,6 +45,19 @@ export default function PropertyCard({ property }) {
             <p className="text-brand-400 font-semibold text-sm">{formatCurrency(purchase_price)}</p>
           )}
         </div>
+
+        {onDelete && (
+          <button
+            onClick={e => { e.preventDefault(); e.stopPropagation(); onDelete(id, address); }}
+            className="flex-shrink-0 p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-colors"
+            title="Delete property"
+            aria-label="Delete property"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        )}
       </div>
     </Link>
   );
