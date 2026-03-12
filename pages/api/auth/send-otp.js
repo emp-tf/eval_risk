@@ -1,12 +1,12 @@
-import { setupSchema, query } from '../../../lib/db';
-import { generateOTP } from '../../../lib/auth';
+import { setupSchema, query } from "../../../lib/db";
+import { generateOTP } from "../../../lib/auth";
 
 let schemaReady = false;
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== "POST") return res.status(405).end();
 
-  // Wrap setupSchema in its own try/catch — same reason as signup.js:
+  // Wrap setupSchema in its own try/catch so schema errors don't break the response:
   // a non-JSON or error response from the schema endpoint would otherwise
   // propagate as an unhandled throw, causing Next.js to return an HTML page
   // instead of JSON, which the client sees as "Unexpected token '<'".
@@ -14,22 +14,26 @@ export default async function handler(req, res) {
     try {
       await setupSchema();
     } catch (e) {
-      console.warn('setupSchema warning (non-fatal):', e.message);
+      console.warn("setupSchema warning (non-fatal):", e.message);
     }
     schemaReady = true;
   }
 
   const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email is required.' });
+  if (!email) return res.status(400).json({ error: "Email is required." });
 
   try {
     // Check user exists
     const userResult = await query(
-      'SELECT id FROM app_a4367bd81985442d9dc8319de1ddc526.users WHERE email = $1',
-      [email.toLowerCase()]
+      "SELECT id FROM app_a4367bd81985442d9dc8319de1ddc526.users WHERE email = $1",
+      [email.toLowerCase()],
     );
     if (!userResult.data || userResult.data.length === 0) {
-      return res.status(404).json({ error: 'No account found with this email. Please sign up first.' });
+      return res
+        .status(404)
+        .json({
+          error: "No account found with this email. Please sign up first.",
+        });
     }
 
     // Generate OTP
@@ -39,26 +43,22 @@ export default async function handler(req, res) {
     // Invalidate old OTPs for this email
     await query(
       `UPDATE app_a4367bd81985442d9dc8319de1ddc526.otp_codes SET used = true WHERE email = $1 AND used = false`,
-      [email.toLowerCase()]
+      [email.toLowerCase()],
     );
 
     // Store new OTP
     await query(
       `INSERT INTO app_a4367bd81985442d9dc8319de1ddc526.otp_codes (email, code, expires_at, used)
        VALUES ($1, $2, $3, false)`,
-      [email.toLowerCase(), code, expiresAt]
+      [email.toLowerCase(), code, expiresAt],
     );
-
-    // In production: send email via your email provider
-    // For demo mode: return the OTP in response
-    console.log(`[OTP] ${email}: ${code}`);
 
     return res.status(200).json({
       success: true,
-      message: 'OTP sent to your email.',
+      message: "OTP sent to your email.",
       devOtp: code, // Remove in production — for demo only
     });
   } catch (e) {
-    return res.status(500).json({ error: 'Failed to send OTP: ' + e.message });
+    return res.status(500).json({ error: "Failed to send OTP: " + e.message });
   }
 }

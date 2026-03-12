@@ -37,8 +37,7 @@ export default function Home() {
             <span className="text-white font-bold text-lg">AfriRisk</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-slate-300 hover:text-white text-sm font-medium transition-colors">Sign In</Link>
-            <Link href="/signup" className="btn-primary text-sm py-2 px-4">Get Started Free</Link>
+            <Link href="/login" className="btn-primary text-sm py-2 px-4">Sign In</Link>
           </div>
         </nav>
 
@@ -58,8 +57,7 @@ export default function Home() {
             AI agents aggregate real-time data across 8 risk dimensions — currency, climate, geopolitical, economic, fraud, market, environmental, and AI — to produce a comprehensive risk score for any property across Africa.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/signup" className="btn-primary px-8 py-3 text-base">Start Free Assessment</Link>
-            <Link href="/login" className="btn-secondary px-8 py-3 text-base">Sign In</Link>
+            <Link href="/login" className="btn-primary px-8 py-3 text-base">Sign In to Start Assessment</Link>
           </div>
 
           {/* Risk Level Indicators */}

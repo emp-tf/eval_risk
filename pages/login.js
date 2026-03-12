@@ -146,8 +146,7 @@ export default function Login() {
           </div>
 
           <p className="text-center text-slate-500 text-sm mt-4">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-brand-400 hover:text-brand-300 font-medium">Sign Up Free</Link>
+            Admin access only. Contact support if you need access.
           </p>
         </div>
       </div>
