@@ -1,8 +1,12 @@
 import { query } from '../../../lib/db';
 import { getSessionUser } from '../../../lib/auth';
+import { riskReportSelectSlim } from '../../../lib/riskReportSelect';
+import { slimRawDataForResponse } from '../../../lib/slimRawDataForResponse';
 import { runRiskAssessment } from '../../../lib/agents';
 
 export const config = { api: { bodyParser: true, responseLimit: false } };
+
+const SCHEMA = 'app_a4367bd81985442d9dc8319de1ddc526';
 
 export default async function handler(req, res) {
   const user = await getSessionUser(req);
@@ -10,14 +14,31 @@ export default async function handler(req, res) {
 
   const { propertyId } = req.query;
 
-  // GET: check status
+  // GET: check status — never return raw_data.research (slim SQL + always slim in JS)
   if (req.method === 'GET') {
     try {
-      const result = await query(
-        `SELECT * FROM app_a4367bd81985442d9dc8319de1ddc526.risk_reports WHERE property_id = $1 AND user_id = $2 ORDER BY created_at DESC LIMIT 1`,
-        [propertyId, user.id]
-      );
-      return res.status(200).json({ report: result.data?.[0] || null });
+      let report = null;
+      try {
+        const result = await query(
+          riskReportSelectSlim(
+            'r.property_id = $1 AND r.user_id = $2',
+            'ORDER BY r.created_at DESC LIMIT 1'
+          ),
+          [propertyId, user.id]
+        );
+        report = result.data?.[0] || null;
+      } catch {
+        const fallback = await query(
+          `SELECT * FROM ${SCHEMA}.risk_reports WHERE property_id = $1 AND user_id = $2 ORDER BY created_at DESC LIMIT 1`,
+          [propertyId, user.id]
+        );
+        report = fallback.data?.[0] || null;
+      }
+
+      if (report?.raw_data != null) {
+        report.raw_data = slimRawDataForResponse(report.raw_data);
+      }
+      return res.status(200).json({ report });
     } catch (e) {
       return res.status(500).json({ error: e.message });
     }
@@ -25,9 +46,8 @@ export default async function handler(req, res) {
 
   // POST: start assessment
   if (req.method === 'POST') {
-    // Get property
     const propResult = await query(
-      `SELECT * FROM app_a4367bd81985442d9dc8319de1ddc526.properties WHERE id = $1 AND user_id = $2`,
+      `SELECT * FROM ${SCHEMA}.properties WHERE id = $1 AND user_id = $2`,
       [propertyId, user.id]
     );
     if (!propResult.data || propResult.data.length === 0) {
@@ -35,20 +55,18 @@ export default async function handler(req, res) {
     }
     const property = propResult.data[0];
 
-    // Check for existing complete report
     const existingReport = await query(
-      `SELECT id, status FROM app_a4367bd81985442d9dc8319de1ddc526.risk_reports WHERE property_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      `SELECT id, status FROM ${SCHEMA}.risk_reports WHERE property_id = $1 ORDER BY created_at DESC LIMIT 1`,
       [propertyId]
     );
     if (existingReport.data?.[0]?.status === 'complete') {
       return res.status(200).json({ message: 'Report already complete.', reportId: existingReport.data[0].id });
     }
 
-    // Create pending report
     let reportId;
     if (!existingReport.data || existingReport.data.length === 0) {
       const createResult = await query(
-        `INSERT INTO app_a4367bd81985442d9dc8319de1ddc526.risk_reports (property_id, user_id, status) VALUES ($1, $2, 'pending') RETURNING id`,
+        `INSERT INTO ${SCHEMA}.risk_reports (property_id, user_id, status) VALUES ($1, $2, 'pending') RETURNING id`,
         [propertyId, user.id]
       );
       reportId = createResult.data[0].id;
@@ -56,10 +74,7 @@ export default async function handler(req, res) {
       reportId = existingReport.data[0].id;
     }
 
-    // Respond immediately, run assessment async
     res.status(202).json({ message: 'Assessment started.', reportId });
-
-    // Run assessment in background
     runRiskAssessmentAsync(property, reportId, user.id);
     return;
   }
@@ -70,17 +85,16 @@ export default async function handler(req, res) {
 async function runRiskAssessmentAsync(property, reportId, userId) {
   try {
     const results = await runRiskAssessment(property, (agentKey, status, progress, total) => {
-      // Could push to SSE here in future
       console.log(`[Agent ${agentKey}] ${status} (${progress}/${total})`);
     }, reportId);
 
     await query(
-      `UPDATE app_a4367bd81985442d9dc8319de1ddc526.risk_reports
+      `UPDATE ${SCHEMA}.risk_reports
        SET overall_score = $1, risk_level = $2,
            currency_score = $3, climate_score = $4, geopolitical_score = $5,
            economic_score = $6, fraud_score = $7, market_score = $8,
            environmental_score = $9, ai_score = $10,
-           raw_data = $11, status = 'complete'
+           raw_data = $11::jsonb, status = 'complete'
        WHERE id = $12`,
       [
         results.overall_score,
@@ -101,7 +115,7 @@ async function runRiskAssessmentAsync(property, reportId, userId) {
   } catch (e) {
     console.error('[Risk] Assessment error:', e.message);
     await query(
-      `UPDATE app_a4367bd81985442d9dc8319de1ddc526.risk_reports SET status = 'error' WHERE id = $1`,
+      `UPDATE ${SCHEMA}.risk_reports SET status = 'error' WHERE id = $1`,
       [reportId]
     ).catch(() => {});
   }

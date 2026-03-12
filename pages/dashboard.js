@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Layout from '../components/Layout';
@@ -11,6 +11,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState(null);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -24,16 +25,21 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user) return;
     loadProperties();
-    // Poll for pending assessments
-    const interval = setInterval(loadProperties, 8000);
-    return () => clearInterval(interval);
+    intervalRef.current = setInterval(loadProperties, 8000);
+    return () => clearInterval(intervalRef.current);
   }, [user]);
 
   const loadProperties = async () => {
     try {
       const res = await fetch('/api/properties');
       const data = await res.json();
-      if (data.properties) setProperties(data.properties);
+      if (data.properties) {
+        setProperties(data.properties);
+        const hasPending = data.properties.some(p => !p.status || p.status === 'pending');
+        if (!hasPending) {
+          clearInterval(intervalRef.current);
+        }
+      }
     } catch {}
     setLoading(false);
   };
@@ -122,20 +128,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Tier Banner */}
-      {user.tier === 'free' && (
-        <div className="bg-brand-900/30 border border-brand-700/40 rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <svg className="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-brand-300 text-sm">
-              Free tier: <span className="font-semibold">{user.report_count}/3</span> reports used. Upgrade for unlimited reports and PDF downloads.
-            </p>
-          </div>
-          <Link href="/properties/new" className="text-brand-400 hover:text-brand-300 text-sm font-semibold whitespace-nowrap">Upgrade →</Link>
-        </div>
-      )}
 
       {/* Search */}
       <div className="relative mb-6">

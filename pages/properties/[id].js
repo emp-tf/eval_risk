@@ -148,22 +148,25 @@ export default function PropertyDetail() {
       doc.text('Risk Category Scores', margin, y);
       y += 8;
 
-      const categoryRows = RISK_CATEGORIES.map(cat => [
-        cat.label,
-        cat.weight,
-        `${report[cat.key] ?? 'N/A'}/100`,
-        cat.description,
-      ]);
+      const categoryRows = RISK_CATEGORIES.map(cat => {
+        const catSummary = report.raw_data?.[cat.key.replace('_score', '')]?.summary;
+        return [
+          cat.label,
+          cat.weight,
+          `${report[cat.key] ?? 'N/A'}/100`,
+          catSummary || cat.description,
+        ];
+      });
 
       autoTable(doc, {
         startY: y,
-        head: [['Category', 'Weight', 'Score', 'Description']],
+        head: [['Category', 'Weight', 'Score', 'AI Analysis']],
         body: categoryRows,
         margin: { left: margin, right: margin },
         theme: 'grid',
         headStyles: { fillColor: [79, 70, 229], textColor: 255, fontStyle: 'bold' },
-        styles: { fontSize: 9 },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 38 }, 1: { cellWidth: 18 }, 2: { cellWidth: 18 } },
+        styles: { fontSize: 9, cellPadding: 3 },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 38 }, 1: { cellWidth: 16 }, 2: { cellWidth: 16 } },
       });
 
       y = doc.lastAutoTable.finalY + 12;
@@ -326,37 +329,81 @@ export default function PropertyDetail() {
             {/* Category Scores */}
             <div className="card">
               <h2 className="section-title">Detailed Risk Assessment</h2>
-              <div className="space-y-4">
+              <p className="text-slate-400 text-sm mb-5">
+                Each category is scored 0–100. Expand a category to see the explanation behind the score.
+              </p>
+              <div className="space-y-3">
                 {RISK_CATEGORIES.map(cat => {
+                  const agentKey = cat.key.replace('_score', '');
                   const score = report[cat.key];
                   const risk = score !== null && score !== undefined ? getRiskLevel(score) : null;
                   const pct = score !== null && score !== undefined ? score : 0;
+                  const summary = report.raw_data?.[agentKey]?.summary;
+                  const explanation = summary || cat.description;
+                  const levelLabel = risk?.level || '—';
+                  const levelColor = risk?.text || 'text-slate-300';
                   return (
-                    <div key={cat.key} className="p-4 bg-slate-800/50 rounded-xl">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-white font-semibold text-sm">{cat.label}</span>
-                            <span className="text-slate-600 text-xs font-medium">{cat.weight}</span>
+                    <details
+                      key={cat.key}
+                      className="group rounded-2xl border border-slate-800 bg-slate-900/30 overflow-hidden"
+                    >
+                      <summary className="list-none cursor-pointer select-none p-4 hover:bg-slate-900/50 transition-colors">
+                        <div className="flex items-start gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-semibold">{cat.label}</span>
+                              <span className="inline-flex items-center rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-slate-300 border border-slate-700">
+                                {cat.weight}
+                              </span>
+                            </div>
+                            <p className="text-slate-500 text-sm mt-1 line-clamp-2">
+                              {cat.detail || cat.description}
+                            </p>
                           </div>
-                          <p className="text-slate-500 text-xs">{cat.description}</p>
+
+                          <div className="flex-shrink-0 text-right">
+                            <div className="flex items-baseline justify-end gap-1">
+                              <span className={`text-3xl font-extrabold tracking-tight ${levelColor}`}>
+                                {score ?? '—'}
+                              </span>
+                              <span className="text-slate-500 text-sm">/100</span>
+                            </div>
+                            <div className="flex items-center justify-end gap-2 mt-1">
+                              <span className={`text-xs font-semibold ${levelColor}`}>{levelLabel}</span>
+                              <span className="text-slate-700 group-open:rotate-180 transition-transform">
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        {risk && (
-                          <div className={`ml-4 flex-shrink-0 text-right`}>
-                            <span className={`text-2xl font-bold ${risk.text}`}>{score}</span>
-                            <span className="text-slate-500 text-sm">/100</span>
+
+                        <div className="mt-4">
+                          <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                            <div
+                              className={`h-2.5 rounded-full ${
+                                pct <= 30 ? 'bg-green-500' : pct <= 60 ? 'bg-amber-500' : pct <= 80 ? 'bg-orange-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${Math.min(pct, 100)}%`, maxWidth: '100%' }}
+                            />
                           </div>
-                        )}
+                          <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
+                            <span>Lower is safer</span>
+                            <span className="font-semibold text-slate-400">{Math.min(Math.max(pct, 0), 100)}%</span>
+                          </div>
+                        </div>
+                      </summary>
+
+                      <div className="px-4 pb-4 space-y-3">
+                        <div className="mt-2 rounded-xl bg-slate-950/40 border border-slate-800 p-4">
+                          <p className="text-slate-200 text-sm leading-6">
+                            <span className="text-slate-400 font-semibold">Why this score:</span>{' '}
+                            {explanation}
+                          </p>
+                        </div>
                       </div>
-                      <div className="w-full bg-slate-700 rounded-full h-2 mt-2 overflow-hidden">
-                        <div
-                          className={`h-2 rounded-full ${
-                            pct <= 30 ? 'bg-green-500' : pct <= 60 ? 'bg-amber-500' : pct <= 80 ? 'bg-orange-500' : 'bg-red-500'
-                          }`}
-                          style={{ width: `${Math.min(pct, 100)}%`, maxWidth: '100%' }}
-                        />
-                      </div>
-                    </div>
+                    </details>
                   );
                 })}
               </div>
