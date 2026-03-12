@@ -165,7 +165,7 @@ export default function NewProperty() {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-white mb-3">Analysing Risk</h2>
-          <p className="text-slate-400 text-sm mb-8">Our AI agents are gathering real-time data for your property. This may take 1–2 minutes.</p>
+          <p className="text-slate-400 text-sm mb-8">Our AI agents are gathering real-time data for your property. This typically takes 5–7 minutes.</p>
           <div className="w-full bg-slate-700 rounded-full h-2">
             <div
               className="bg-brand-500 h-2 rounded-full transition-all duration-500"
@@ -397,7 +397,7 @@ export default function NewProperty() {
                 <img src={form.imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-xl" />
               )}
               <div className="bg-brand-900/20 border border-brand-700/30 rounded-xl p-3 text-sm text-brand-300">
-                <strong>Note:</strong> After submitting, our AI agents will gather real-time risk data. This takes 1–3 minutes.
+                <strong>Note:</strong> After submitting, our AI agents will gather real-time risk data. This typically takes 5–7 minutes.
               </div>
               <div className="flex gap-3">
                 <button onClick={() => setStep(2)} className="btn-secondary flex-1">← Back</button>
