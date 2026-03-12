@@ -1,6 +1,14 @@
 import { query } from '../../../lib/db';
 import { getSessionUser } from '../../../lib/auth';
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};
+
 export default async function handler(req, res) {
   const user = await getSessionUser(req);
   if (!user) return res.status(401).json({ error: 'Unauthorized. Please sign in.' });
@@ -8,9 +16,20 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const result = await query(
-        `SELECT p.*, r.overall_score, r.risk_level, r.status, r.id as report_id
+        `SELECT
+           p.*,
+           r.overall_score,
+           r.risk_level,
+           r.status,
+           r.id as report_id
          FROM app_a4367bd81985442d9dc8319de1ddc526.properties p
-         LEFT JOIN app_a4367bd81985442d9dc8319de1ddc526.risk_reports r ON r.property_id = p.id
+         LEFT JOIN LATERAL (
+           SELECT overall_score, risk_level, status, id
+           FROM app_a4367bd81985442d9dc8319de1ddc526.risk_reports
+           WHERE property_id = p.id
+           ORDER BY created_at DESC
+           LIMIT 1
+         ) r ON true
          WHERE p.user_id = $1
          ORDER BY p.created_at DESC`,
         [user.id]

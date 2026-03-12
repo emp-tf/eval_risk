@@ -3,7 +3,22 @@ import RiskBadge from './RiskBadge';
 import { formatCurrency } from '../lib/risk';
 
 export default function PropertyCard({ property, onDelete }) {
-  const { id, address, property_type, use_type, purchase_price, image_url, overall_score, risk_level, status } = property;
+  const {
+    id,
+    address,
+    lat,
+    lng,
+    property_type,
+    use_type,
+    sub_type,
+    bedrooms,
+    amenities,
+    purchase_price,
+    financing_method,
+    image_url,
+    overall_score,
+    status,
+  } = property;
 
   return (
     <Link href={`/properties/${id}`}>
@@ -34,6 +49,11 @@ export default function PropertyCard({ property, onDelete }) {
             <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">
               {use_type}
             </span>
+            {sub_type && (
+              <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">
+                {sub_type}
+              </span>
+            )}
             {status === 'pending' && (
               <span className="text-xs bg-brand-900/40 text-brand-300 px-2 py-0.5 rounded-full border border-brand-700/40 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
@@ -41,8 +61,44 @@ export default function PropertyCard({ property, onDelete }) {
               </span>
             )}
           </div>
-          {purchase_price && (
-            <p className="text-brand-400 font-semibold text-sm">{formatCurrency(purchase_price)}</p>
+
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+            {purchase_price ? (
+              <div className="min-w-0">
+                <p className="text-slate-500 text-xs">Purchase price</p>
+                <p className="text-brand-400 font-semibold truncate">{formatCurrency(purchase_price)}</p>
+              </div>
+            ) : (
+              <div className="min-w-0">
+                <p className="text-slate-500 text-xs">Purchase price</p>
+                <p className="text-slate-300 font-medium">—</p>
+              </div>
+            )}
+
+            <div className="min-w-0">
+              <p className="text-slate-500 text-xs">Financing</p>
+              <p className="text-slate-300 font-medium truncate">{financing_method || '—'}</p>
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-slate-500 text-xs">Bedrooms</p>
+              <p className="text-slate-300 font-medium truncate">
+                {bedrooms === null || bedrooms === undefined || bedrooms === '' ? '—' : bedrooms}
+              </p>
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-slate-500 text-xs">Location</p>
+              <p className="text-slate-300 font-medium truncate">
+                {lat && lng ? `${parseFloat(lat).toFixed(3)}, ${parseFloat(lng).toFixed(3)}` : '—'}
+              </p>
+            </div>
+          </div>
+
+          {amenities && (
+            <p className="text-slate-500 text-xs mt-3 line-clamp-1">
+              <span className="text-slate-400 font-semibold">Amenities:</span> {amenities}
+            </p>
           )}
         </div>
 

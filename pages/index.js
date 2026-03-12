@@ -8,7 +8,7 @@ const FEATURES = [
   { icon: '📍', title: 'Coordinate Precision', desc: 'Drop a PIN on OpenStreetMap when no standard address exists.' },
   { icon: '📊', title: 'Weighted Scoring', desc: 'A transparent 0–100 score built from eight weighted risk categories.' },
   { icon: '📄', title: 'PDF Reports', desc: 'Download comprehensive risk reports for due diligence and investor review.' },
-  { icon: '⚡', title: 'Real-Time Data', desc: 'Agents pull from World Bank, IMF, ACLED, and live forex and news feeds.' },
+  { icon: '⚡', title: 'Real-Time Data', desc: 'Agents pull from live economic, climate, and news data sources to score each risk dimension.' },
 ];
 
 const RISK_LEVELS = [
