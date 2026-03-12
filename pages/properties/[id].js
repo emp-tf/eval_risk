@@ -306,7 +306,7 @@ export default function PropertyDetail() {
           <div className="card text-center py-10">
             <div className="animate-spin w-10 h-10 border-2 border-brand-500 border-t-transparent rounded-full mx-auto mb-4"></div>
             <h3 className="text-white font-semibold mb-2">AI Risk Assessment in Progress</h3>
-            <p className="text-slate-400 text-sm">Our agents are gathering real-time data. This page will update automatically.</p>
+            <p className="text-slate-400 text-sm">Our agents are gathering real-time data. This typically takes 5–7 minutes — this page will update automatically.</p>
           </div>
         )}
 
