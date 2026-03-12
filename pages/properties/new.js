@@ -20,6 +20,7 @@ export default function NewProperty() {
   const [agents, setAgents] = useState({});
   const [currentAgent, setCurrentAgent] = useState('');
   const [agentProgress, setAgentProgress] = useState(0);
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [form, setForm] = useState({
     address: '',
     lat: '', lng: '',
@@ -61,6 +62,7 @@ export default function NewProperty() {
 
   const handleSubmit = async () => {
     if (!form.address && !form.lat) { toast.error('Please provide an address or drop a PIN on the map.'); return; }
+    if (!disclaimerAccepted) { toast.error('Please read and accept the disclaimer before running the assessment.'); return; }
     setSubmitting(true);
 
     try {
@@ -396,12 +398,27 @@ export default function NewProperty() {
               {form.imagePreview && (
                 <img src={form.imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-xl" />
               )}
+              <div className="border border-slate-700 bg-slate-900 rounded-xl p-4">
+                <p className="text-center text-slate-300 text-xs font-semibold uppercase tracking-wider mb-2">Disclaimer</p>
+                <p className="text-slate-400 text-xs leading-relaxed text-center mb-3">
+                  The risk scores and information provided are for informational purposes only and do not constitute financial, investment, or legal advice. You should conduct your own research and consult a qualified professional before making any investment decisions.
+                </p>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={disclaimerAccepted}
+                    onChange={e => setDisclaimerAccepted(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 accent-brand-500 cursor-pointer shrink-0"
+                  />
+                  <span className="text-slate-300 text-xs">I have read and agree to the disclaimer above</span>
+                </label>
+              </div>
               <div className="bg-brand-900/20 border border-brand-700/30 rounded-xl p-3 text-sm text-brand-300">
                 <strong>Note:</strong> After submitting, our AI agents will gather real-time risk data. This typically takes 3–5 minutes.
               </div>
               <div className="flex gap-3">
                 <button onClick={() => setStep(2)} className="btn-secondary flex-1">← Back</button>
-                <button onClick={handleSubmit} disabled={submitting} className="btn-primary flex-1">
+                <button onClick={handleSubmit} disabled={submitting || !disclaimerAccepted} className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
                   {submitting ? (
                     <span className="flex items-center justify-center gap-2">
                       <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">

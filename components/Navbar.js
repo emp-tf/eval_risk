@@ -70,10 +70,7 @@ export default function Navbar() {
                 </div>
               </>
             ) : (
-              <>
-                <Link href="/login" className="text-slate-300 hover:text-white text-sm font-medium transition-colors">Sign In</Link>
-                <Link href="/signup" className="btn-primary text-sm py-2 px-4">Get Started</Link>
-              </>
+              <Link href="/login" className="btn-primary text-sm py-2 px-4">Sign In</Link>
             )}
           </div>
 
@@ -95,10 +92,7 @@ export default function Navbar() {
                 <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-slate-300 hover:text-white text-sm">Sign Out</button>
               </>
             ) : (
-              <>
-                <Link href="/login" className="block px-4 py-2 text-slate-300 hover:text-white text-sm">Sign In</Link>
-                <Link href="/signup" className="block px-4 py-2 text-brand-400 hover:text-brand-300 text-sm font-medium">Get Started</Link>
-              </>
+              <Link href="/login" className="block px-4 py-2 text-brand-400 hover:text-brand-300 text-sm font-medium">Sign In</Link>
             )}
           </div>
         )}
