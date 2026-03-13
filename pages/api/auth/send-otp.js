@@ -29,16 +29,14 @@ export default async function handler(req, res) {
       [email.toLowerCase()],
     );
     if (!userResult.data || userResult.data.length === 0) {
-      return res
-        .status(404)
-        .json({
-          error: "No account found with this email. Please sign up first.",
-        });
+      return res.status(404).json({
+        error: "No account found with this email. Please sign up first.",
+      });
     }
 
     // Generate OTP
     const code = generateOTP();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 min
+    const expiresAt = new Date(Date.now() + 30 * 1000).toISOString(); // 30 seconds
 
     // Invalidate old OTPs for this email
     await query(
