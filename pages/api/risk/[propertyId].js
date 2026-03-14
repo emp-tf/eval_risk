@@ -93,9 +93,10 @@ async function runRiskAssessmentAsync(property, reportId, userId) {
        SET overall_score = $1, risk_level = $2,
            currency_score = $3, climate_score = $4, geopolitical_score = $5,
            economic_score = $6, fraud_score = $7, market_score = $8,
-           environmental_score = $9, ai_score = $10,
-           raw_data = $11::jsonb, status = 'complete'
-       WHERE id = $12`,
+           environmental_score = $9, financing_score = $10,
+           security_score = $11, infrastructure_score = $12,
+           raw_data = $13::jsonb, status = 'complete'
+       WHERE id = $14`,
       [
         results.overall_score,
         results.risk_level,
@@ -106,7 +107,9 @@ async function runRiskAssessmentAsync(property, reportId, userId) {
         results.fraud_score,
         results.market_score,
         results.environmental_score,
-        results.ai_score,
+        results.financing_score,
+        results.security_score,
+        results.infrastructure_score,
         JSON.stringify(results.raw_data),
         reportId,
       ]

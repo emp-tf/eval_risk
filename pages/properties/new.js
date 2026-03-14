@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Layout from '../../components/Layout';
 import AgentProgress from '../../components/AgentProgress';
-import UpgradeModal from '../../components/UpgradeModal';
 import toast from 'react-hot-toast';
 
 const MapPicker = dynamic(() => import('../../components/MapPicker'), { ssr: false });
@@ -14,7 +13,6 @@ export default function NewProperty() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [step, setStep] = useState(0);
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [assessing, setAssessing] = useState(false);
   const [agents, setAgents] = useState({});
@@ -86,7 +84,6 @@ export default function NewProperty() {
       });
       const propData = await propRes.json();
       if (!propRes.ok) {
-        if (propData.upgrade) { setShowUpgrade(true); setSubmitting(false); return; }
         throw new Error(propData.error || 'Failed to create property');
       }
 
@@ -403,12 +400,12 @@ export default function NewProperty() {
                 <p className="text-slate-400 text-xs leading-relaxed text-center mb-3">
                   The risk scores and information provided are for informational purposes only and do not constitute financial, investment, or legal advice. You should conduct your own research and consult a qualified professional before making any investment decisions.
                 </p>
-                <label className="flex items-start gap-3 cursor-pointer">
+                <label className="flex items-center justify-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={disclaimerAccepted}
                     onChange={e => setDisclaimerAccepted(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 accent-brand-500 cursor-pointer shrink-0"
+                    className="w-4 h-4 accent-brand-500 cursor-pointer shrink-0"
                   />
                   <span className="text-slate-300 text-xs">I have read and agree to the disclaimer above</span>
                 </label>
@@ -435,7 +432,6 @@ export default function NewProperty() {
         </div>
       </div>
 
-      <UpgradeModal isOpen={showUpgrade} onClose={() => { setShowUpgrade(false); router.push('/dashboard'); }} reason="reports" />
     </Layout>
   );
 }

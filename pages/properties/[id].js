@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import RiskBadge, { RiskScoreCircle } from '../../components/RiskBadge';
-import UpgradeModal from '../../components/UpgradeModal';
 import { RISK_CATEGORIES, getRiskLevel, formatCurrency } from '../../lib/risk';
 import toast from 'react-hot-toast';
 
@@ -14,7 +13,6 @@ export default function PropertyDetail() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
 
   useEffect(() => {
@@ -453,7 +451,6 @@ export default function PropertyDetail() {
         )}
       </div>
 
-      <UpgradeModal isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} reason="download" />
     </Layout>
   );
 }

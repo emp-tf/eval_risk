@@ -49,9 +49,6 @@ export default function Navbar() {
                       {user.name?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
                     <span>{user.name?.split(' ')[0]}</span>
-                    {user.tier === 'paid' && (
-                      <span className="bg-brand-600/30 text-brand-300 text-xs px-1.5 py-0.5 rounded-full font-medium">PRO</span>
-                    )}
                   </button>
                   {menuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-1 z-50">

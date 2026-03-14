@@ -1,12 +1,14 @@
 const AGENT_META = {
-  currency: { label: 'Currency Risk', icon: '💱', desc: 'Analyzing exchange rates and forex volatility...' },
-  climate: { label: 'Climate Risk', icon: '🌡️', desc: 'Evaluating climate patterns and flood risk...' },
-  geopolitical: { label: 'Geopolitical Risk', icon: '🌍', desc: 'Assessing political stability and conflict data...' },
-  economic: { label: 'Economic Risk', icon: '📊', desc: 'Reviewing GDP, inflation, and economic indicators...' },
-  fraud: { label: 'Fraud & Market Risk', icon: '🔍', desc: 'Checking title integrity and market data...' },
-  environmental: { label: 'Environmental Risk', icon: '🌱', desc: 'Scanning pollution and environmental hazards...' },
   market: { label: 'Market Risk', icon: '📈', desc: 'Evaluating real estate market dynamics...' },
-  ai: { label: 'AI Risk', icon: '🤖', desc: 'Analyzing tech disruption and automation impact...' },
+  financing: { label: 'Financing Risk', icon: '🏦', desc: 'Assessing mortgage availability and lending conditions...' },
+  currency: { label: 'Currency Risk', icon: '💱', desc: 'Analyzing exchange rates and forex volatility...' },
+  economic: { label: 'Economic Risk', icon: '📊', desc: 'Reviewing GDP, inflation, and economic indicators...' },
+  geopolitical: { label: 'Geopolitical Risk', icon: '🌍', desc: 'Assessing political stability and conflict data...' },
+  security: { label: 'Security Risk', icon: '🔒', desc: 'Evaluating crime rates and physical security...' },
+  infrastructure: { label: 'Infrastructural Risk', icon: '🏗️', desc: 'Assessing roads, power, water, and connectivity...' },
+  fraud: { label: 'Fraud & Title Risk', icon: '🔍', desc: 'Checking title integrity and transaction security...' },
+  environmental: { label: 'Environmental Risk', icon: '🌱', desc: 'Scanning pollution and environmental hazards...' },
+  climate: { label: 'Climate Risk', icon: '🌡️', desc: 'Evaluating climate patterns and flood risk...' },
 };
 
 export default function AgentProgress({ agents, currentAgent, progress, totalAgents }) {
